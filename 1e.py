@@ -21,8 +21,8 @@ def plot_3d_error_vs_iterations(a_list, b_list, c_list, losses):
 
     # Calculate the loss surface over the parameters
     z = np.zeros_like(a_mash)
-    for i in range(a.shape[0]):
-        for j in range(a.shape[1]):
+    for i in range(a_mash.shape[0]):
+        for j in range(a_mash.shape[1]):
             z[i, j] = np.sum(squared_error_func(x_data, y_data, a_mash[i, j], b_mash[i, j], res_c[-1]))
 
     # Plot the error surface
