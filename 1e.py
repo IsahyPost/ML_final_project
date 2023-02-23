@@ -1,15 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sympy import symbols, lambdify, diff, sin, cos
+from sympy import symbols, lambdify, diff, cos
 from scipy.optimize import curve_fit
 from matplotlib import cm
-import math as m
 import time
 
 
 # 1.c
 
-def plot_3D_error_vs_iterations(a_list, b_list, c_list, losses):
+def plot_3d_error_vs_iterations(a_list, b_list, c_list, losses):
     # Convert the lists to numpy arrays
     a_array = np.array(a_list)
     b_array = np.array(b_list)
@@ -18,28 +17,28 @@ def plot_3D_error_vs_iterations(a_list, b_list, c_list, losses):
     # Create a meshgrid of the parameter values
     a_array = np.linspace(np.min(a_array), np.max(a_array), 100)
     b_array = np.linspace(np.min(b_array), np.max(b_array), 100)
-    A, B = np.meshgrid(a_array, b_array)
+    a_mash, b_mash = np.meshgrid(a_array, b_array)
 
     # Calculate the loss surface over the parameters
-    Z = np.zeros_like(A)
-    for i in range(A.shape[0]):
-        for j in range(A.shape[1]):
-            Z[i, j] = np.sum(squared_error_func(x_data, y_data, A[i, j], B[i, j], res_c[-1]))
+    z = np.zeros_like(a_mash)
+    for i in range(a.shape[0]):
+        for j in range(a.shape[1]):
+            z[i, j] = np.sum(squared_error_func(x_data, y_data, a_mash[i, j], b_mash[i, j], res_c[-1]))
 
     # Plot the error surface
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(A, B, Z, rstride=1, cstride=1, cmap=cm.viridis, alpha=0.5, edgecolor='none')
+    ax.plot_surface(a_mash, b_mash, z, rstride=1, cstride=1, cmap=cm.viridis, alpha=0.5, edgecolor='none')
 
     # Calculate the z values of the parameter values found during all iterations
-    ax.scatter(a_list, b_list, losses,c=c_array,cmap = 'coolwarm', marker='o')
+    ax.scatter(a_list, b_list, losses, c=c_array, cmap='coolwarm', marker='o')
     ax.set_xlabel("a")
     ax.set_ylabel("b")
     ax.set_zlabel("Loss")
     plt.show()
 
 
-def plot_2D_error(losses):
+def plot_2d_error(losses):
     fig = plt.figure()
     fig.suptitle("Error vs Iteration", fontsize=14)
     plt.plot(losses, color="blue")
@@ -48,21 +47,21 @@ def plot_2D_error(losses):
     plt.show()
 
 
-def plot_2D_linear(a, b, c, x, y):
+def plot_2d_linear(a2plot, b2plot, c2plot, x2plot, y):
     # Plot the data and model
-    x1 = np.linspace(x[0], x[-1], 500)
-    y1 = F(x1, a, b, c)
+    x1 = np.linspace(x2plot[0], x2plot[-1], 500)
+    y1 = F(x1, a2plot, b2plot, c2plot)
 
     plt.plot(x1, y1)
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.title('f(x) = a * sin(b * x)')
-    plt.scatter(x, y, color="red")
+    plt.scatter(x2plot, y, color="red")
     # plt.plot(x, f(x, a, b), color="blue")
     plt.show()
 
 
-def gradient_decent(lr, num_iter, x_data, y_data):
+def gradient_decent(grad_lr, iter_num, x_data, y_data):
     a = 1
     b = 1
     c = 19
@@ -72,13 +71,13 @@ def gradient_decent(lr, num_iter, x_data, y_data):
     b_list = [b]
     c_list = [c]
 
-    for i in range(num_iter):
+    for i in range(iter_num):
         grad_dir_a = sum(grad_a_func(x_data, y_data, a, b, c))
         grad_dir_b = sum(grad_b_func(x_data, y_data, a, b, c))
         grad_dir_c = sum(grad_c_func(x_data, y_data, a, b, c))
-        a = a - lr * grad_dir_a
-        b = b - lr * grad_dir_b
-        c = c - lr * grad_dir_c
+        a = a - grad_lr * grad_dir_a
+        b = b - grad_lr * grad_dir_b
+        c = c - grad_lr * grad_dir_c
         errors.append(sum(squared_error_func(x_data, y_data, a, b, c)))
         a_list.append(a)
         b_list.append(b)
@@ -152,10 +151,10 @@ print("The optimal parameters found using the function curve_fit are: ", popt)
 print("Time taken: {:.3f}s".format(time.time() - start_time))
 print("Final parameters: a = {:.4f}, b = {:.4f}, c = {:.4f}".format(*popt))
 
-plot_2D_error(errors)
-plot_2D_linear(res_a[-1], res_b[-1], res_c[-1], x_data, y_data)
+plot_2d_error(errors)
+plot_2d_linear(res_a[-1], res_b[-1], res_c[-1], x_data, y_data)
 
-plot_3D_error_vs_iterations(res_a, res_b, res_c, errors)
+plot_3d_error_vs_iterations(res_a, res_b, res_c, errors)
 
 # plot_3D_error_vs_iterations(res_a, res_b, errors)
 
@@ -163,5 +162,3 @@ plot_3D_error_vs_iterations(res_a, res_b, res_c, errors)
 # #1,d
 # popt, pcov = curve_fit(F, x_data, y_data)
 # print("The optimal parameters found using the function curve_fit are: ",popt)
-
-
