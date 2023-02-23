@@ -9,10 +9,11 @@ import time
 
 # 1.c
 
-def plot_3D_error_vs_iterations(a_list, b_list, losses):
+def plot_3D_error_vs_iterations(a_list, b_list, c_list, losses):
     # Convert the lists to numpy arrays
     a_array = np.array(a_list)
     b_array = np.array(b_list)
+    c_array = np.array(c_list)
 
     # Create a meshgrid of the parameter values
     a_array = np.linspace(np.min(a_array), np.max(a_array), 100)
@@ -31,7 +32,7 @@ def plot_3D_error_vs_iterations(a_list, b_list, losses):
     ax.plot_surface(A, B, Z, rstride=1, cstride=1, cmap=cm.viridis, alpha=0.5, edgecolor='none')
 
     # Calculate the z values of the parameter values found during all iterations
-    ax.scatter(a_list, b_list, losses, color='red', marker='o')
+    ax.scatter(a_list, b_list, losses,c=c_array,cmap = 'coolwarm', marker='o')
     ax.set_xlabel("a")
     ax.set_ylabel("b")
     ax.set_zlabel("Loss")
@@ -154,7 +155,7 @@ print("Final parameters: a = {:.4f}, b = {:.4f}, c = {:.4f}".format(*popt))
 plot_2D_error(errors)
 plot_2D_linear(res_a[-1], res_b[-1], res_c[-1], x_data, y_data)
 
-plot_3D_error_vs_iterations(res_a, res_b, errors)
+plot_3D_error_vs_iterations(res_a, res_b, res_c, errors)
 
 # plot_3D_error_vs_iterations(res_a, res_b, errors)
 
