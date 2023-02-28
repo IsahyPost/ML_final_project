@@ -18,14 +18,23 @@ def find_same(x_pix,y_pix, t_im,f_im, win):
     same = [x_pix,y_pix]
     #print(x_pix, y_pix)
     mn = t_im[x_pix][y_pix] + 254
-    for i in range(y_pix - win, y_pix + win):
-        for j in range(x_pix - win, x_pix + win):
-           # mn = f_im[x_pix][y_pix]
-            if in_bounds(i,j, t_im):
-                new = new_min(x_pix,y_pix, i, j, mn, t_im ,f_im)
+    for i in range(win):
+        frame = get_pixels_in_frame(f_im, x_pix, y_pix, i)
+        for f in frame:
+            if in_bounds(f[0],f[1], t_im):
+                new = new_min(x_pix,y_pix, f[0],f[1], mn, t_im ,f_im)
                 if new < mn:
-                    same = [i,j]
+                    same = f
                     mn = new
+    #
+    # for i in range(y_pix - win, y_pix + win):
+    #     for j in range(x_pix - win, x_pix + win):
+    #        # mn = f_im[x_pix][y_pix]
+    #         if in_bounds(i,j, t_im):
+    #             new = new_min(x_pix,y_pix, i, j, mn, t_im ,f_im)
+    #             if new < mn:
+    #                 same = [i,j]
+    #                 mn = new
     return same
 
 def similarity(x_pix,y_pix, i, j, t_im ,f_im):
@@ -45,6 +54,7 @@ def new_min(x_pix,y_pix, i, j, mn, t_im ,f_im):
 
 def restore_colors(to_values, gray_from_values, from_values, win):
     new_values = np.asarray(new_to).copy()
+    new_values.fill(0)
 
     for i in range(len(to_values)):
         for j in range(len(to_values[0])):
@@ -71,6 +81,35 @@ def plot_results(new_values, org_image, gray_from_image):
     plt.show()
 
 
+def get_pixels_in_frame(image, x, y,  rec_size):
+    """
+    Returns a list of all the pixels in the frame of the rectangle that surrounds
+    the pixel at (x, y) in the given image.
+    """
+    x1, y1, x2, y2 = get_surrounding_rectangle(image, x, y, rec_size)
+    pixels = []
+    for i in range(y1, y2+1):
+        for j in range(x1, x2+1):
+            if i == y1 or i == y2 or j == x1 or j == x2:
+                pixels.append([i,j])
+    return pixels
+
+def get_surrounding_rectangle(image, x, y, rec_size):
+    """
+    Returns the rectangle that surrounds the pixel at (x, y) in the given image.
+    The rectangle is represented as a tuple of (x1, y1, x2, y2), where (x1, y1) is
+    the top-left corner of the rectangle and (x2, y2) is the bottom-right corner.
+    """
+    width = len(image[0])
+    height = len(image)
+    # Calculate the coordinates of the top-left and bottom-right corners of the rectangle
+    x1 = max(0, x - rec_size)
+    y1 = max(0, y - rec_size)
+    x2 = min(width - rec_size, x + rec_size)
+    y2 = min(height - rec_size, y + rec_size)
+    return (x1, y1, x2, y2)
+
+
 
 
 persons = ['cgboyc', 'cmkirk', 'djhugh','dmwest', 'gmwate','khughe','lejnno']
@@ -93,9 +132,13 @@ gray_from_values = np.asarray(gray_from_image,dtype='int64').copy()
 
 
 
-
+new_values = np.asarray(new_to).copy()
+new_values.fill(0)
 nv = restore_colors(to_values, gray_from_values, from_values, 25)
+
+
 plot_results(nv, org_image, gray_from_image)
+
 
 
 # max sim = 221
@@ -126,30 +169,3 @@ plot_results(nv, org_image, gray_from_image)
 # X_pca = pca.fit_transform(X)
 #
 
-def get_pixels_in_frame_of_surrounding_rectangle(image, x, y):
-    """
-    Returns a list of all the pixels in the frame of the rectangle that surrounds
-    the pixel at (x, y) in the given image.
-    """
-    x1, y1, x2, y2 = get_surrounding_rectangle(image, x, y)
-    pixels = []
-    for i in range(y1, y2+1):
-        for j in range(x1, x2+1):
-            if i == y1 or i == y2 or j == x1 or j == x2:
-                pixels.append(image[i][j])
-    return pixels
-
-def get_surrounding_rectangle(image, x, y, rec_size):
-    """
-    Returns the rectangle that surrounds the pixel at (x, y) in the given image.
-    The rectangle is represented as a tuple of (x1, y1, x2, y2), where (x1, y1) is
-    the top-left corner of the rectangle and (x2, y2) is the bottom-right corner.
-    """
-    width = len(image[0])
-    height = len(image)
-    # Calculate the coordinates of the top-left and bottom-right corners of the rectangle
-    x1 = max(0, x - rec_size)
-    y1 = max(0, y - rec_size)
-    x2 = min(width - rec_size, x + rec_size)
-    y2 = min(height - rec_size, y + rec_size)
-    return (x1, y1, x2, y2)
