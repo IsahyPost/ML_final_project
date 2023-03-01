@@ -141,35 +141,48 @@ gray_from_values = np.asarray(gray_from_image,dtype='int64').copy()
 
 new_values = np.asarray(new_to).copy()
 new_values.fill(0)
-#nv = restore_colors(to_values, gray_from_values, from_values, 5)
-
-#plot_results(nv, org_image, gray_from_image)
 
 
 # in this stage we want to load the images
 # we change them to np.array to be ready for pca
 start_time = time.time()
-#train_path = 'C:/Users/holtz/OneDrive/Desktop/Machine Learning/ProjectPostHoltzman/faces_sets/training_set/'
-train_path = r'C:\Users\lenovo\PycharmProjects\ML_final_project\faces_sets\training_set/'
+
 personsGreyAsMatrix = []
 names_train_set = []
+
+# get the directory of the current script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# construct the relative path to the training set directory
+training_set_dir = os.path.join(current_dir, "faces_sets", "training_set")
+
 for name in persons:
     for i in range(1, 20):
-        imageName = train_path + name + '.' + str(i) + '.jpg'
-        image = Image.open(imageName).convert('L')
+        # construct the relative path to the image
+        image_path = os.path.join(training_set_dir, name + '.' + str(i) + '.jpg')
+
+        # open the image
+        image = Image.open(image_path).convert('L')
         data = np.asarray(image)
         data = data.flatten()
         personsGreyAsMatrix.append(data)
         names_train_set.append(name + '.' + str(i) + '.jpg')
 personsGreyAsMatrix = np.asarray(personsGreyAsMatrix)
 
-#test_path = 'C:/Users/holtz/OneDrive/Desktop/Machine Learning/ProjectPostHoltzman/faces_sets/test_set/'
-test_path = r'C:\\Users\lenovo\PycharmProjects\ML_final_project\faces_sets\test_set/'
+
 test_set = []
 names_test_set = []
+
+# construct the relative path to the training set directory
+test_set_dir = os.path.join(current_dir, "faces_sets", "test_set")
+
 for name in persons:
-    imageName = test_path + name + '.' + str(20) + '.jpg'
-    image = Image.open(imageName).convert('L')
+    # construct the relative path to the image
+    image_path = os.path.join(test_set_dir, name + '.' + str(20) + '.jpg')
+
+    # open the image
+    image = Image.open(image_path).convert('L')
+
     data = np.asarray(image)
     data = data.flatten()
     test_set.append(data)
@@ -183,9 +196,15 @@ X_train_pca = pca.fit_transform(personsGreyAsMatrix)
 X_train_1d = X_train_pca.reshape((X_train_pca.shape[0], -1))
 
 for name in persons:
-    imageName = test_path + name + '.' + str(20) + '.jpg'
-    # Open the image form working directorys
-    image = Image.open(imageName).convert('L')
+    # construct the relative path to the image
+    image_path = os.path.join(test_set_dir, name + '.' + str(20) + '.jpg')
+
+    # open the image
+    image = Image.open(image_path).convert('L')
+
+    # imageName = test_path + name + '.' + str(20) + '.jpg'
+    # # Open the image form working directorys
+    # image = Image.open(imageName).convert('L')
     image_array = np.asarray(image)
     data = image_array.flatten()
     data = data.reshape(1,-1)
@@ -193,8 +212,10 @@ for name in persons:
     similar = cosine_similarity(data_pca,X_train_pca)
     max_similarity_index = np.argmax(similar[0])
 
-    image_test = Image.open(imageName)
-    res_image = Image.open(train_path + names_train_set[max_similarity_index])
+    #image_test = Image.open(imageName)
+    image_path = os.path.join(training_set_dir, names_train_set[max_similarity_index])
+
+    res_image = Image.open(image_path)
 
 
     fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(7, 7))
@@ -215,15 +236,15 @@ for name in persons:
     grey_res_val = np.asarray(grey_res)
     res_values = np.asarray(res_image)
 
-    x = restore_colors(image_array, grey_res_val, res_values, 25)
+    x = restore_colors(image_array, grey_res_val, res_values, 2)
     ax2[0].imshow(x)
     ax2[0].set_title('restore image')
     ax2[0].axis('off')
     ax2[1].axis('off')
 
     # Show the plot
-    #plt.show()
-    plots_path = r'C:\Users\lenovo\Downloads\plots/'
-    plt.savefig(plots_path + name)
+    plt.show()
+    # plots_path = r'C:\Users\lenovo\Downloads\plots/'
+    # plt.savefig(plots_path + name)
 
-print("Time taken: {:.3f}s".format(time.time() - start_time))
+print("Time taken: {:.3f}m".format((time.time() - start_time)/ 60) )
