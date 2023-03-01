@@ -8,46 +8,57 @@ import math
 import os
 
 
+class Pixel:
 
-sp = 5
+    def __init__(self, x, y=None):
+        if y is None:
+            self.copy_constructor(x)
+        else:
+            self.non_copy_constructor(x, y)
 
-def in_bounds(i,j,image):
-    return i in range(len(image)) and j in range(len(image[0]))
+    def non_copy_constructor(self, x, y):
+        self.x = x
+        self.y = y
 
-def find_same(x_pix,y_pix, t_im,f_im, win):
-    same = [x_pix,y_pix]
-    #print(x_pix, y_pix)
-    mn = t_im[x_pix][y_pix] + 254
+    def copy_constructor(self, pix):
+        self.x = pix.x
+        self.y = pix.y
+
+    def __str__(self):
+        return "({0}, {1})".format(self.x, self.y)
+
+    def distance(self, other):
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return (dx ** 2 + dy ** 2) ** 0.5
+
+
+def in_bounds(pxl,image):
+    return pxl.x in range(len(image)) and pxl.y in range(len(image[0]))
+
+def find_same(pxl, t_im,f_im, win):
+    same = Pixel(pxl)
+    mn = t_im[pxl.x][pxl.y] + 254
     for i in range(win):
-        frame = get_pixels_in_frame(f_im, x_pix, y_pix, i)
+        frame = get_pixels_in_frame(f_im, pxl, i)
         for f in frame:
-            if in_bounds(f[0],f[1], t_im):
-                new = new_min(x_pix,y_pix, f[0],f[1], mn, t_im ,f_im)
+            if in_bounds(pxl, t_im):
+                new = new_min(pxl, f, mn, t_im ,f_im)
                 if new < mn:
-                    same = f
+                    same = Pixel(f)
                     mn = new
-    #
-    # for i in range(y_pix - win, y_pix + win):
-    #     for j in range(x_pix - win, x_pix + win):
-    #        # mn = f_im[x_pix][y_pix]
-    #         if in_bounds(i,j, t_im):
-    #             new = new_min(x_pix,y_pix, i, j, mn, t_im ,f_im)
-    #             if new < mn:
-    #                 same = [i,j]
-    #                 mn = new
     return same
 
-def similarity(x_pix,y_pix, i, j, t_im ,f_im):
-    return abs(t_im[x_pix][y_pix] - f_im[i][j])
+def similarity(pxl1, pxl2, t_im ,f_im):
+    return abs(t_im[pxl1.x][pxl1.y] - f_im[pxl2.x][pxl2.y])
 
-def distance(x_pix,y_pix, i, j):
-    return math.sqrt((x_pix - i) ** 2 + (y_pix - j) ** 2)
+def distance(pxl1, pxl2):
+    return math.sqrt((pxl1.x - pxl2.x) ** 2 + (pxl1.y - pxl2.y) ** 2)
 
-def new_min(x_pix,y_pix, i, j, mn, t_im ,f_im):
-    dis = (distance(x_pix,y_pix, i, j))
-    sim = (similarity(x_pix,y_pix, i, j, t_im ,f_im))
+def new_min(pxl, ijpxl, mn, t_im ,f_im):
+    dis = (distance(pxl, ijpxl))
+    sim = (similarity(pxl, ijpxl, t_im ,f_im))
     new = abs( sim +  1.5 * dis)
-    #new = abs(t_im[x_pix][y_pix] - f_im[i][j])
     if new < mn:
         return new
     return mn
@@ -58,8 +69,8 @@ def restore_colors(to_values, gray_from_values, from_values, win):
 
     for i in range(len(to_values)):
         for j in range(len(to_values[0])):
-            x, y = find_same(i, j, to_values, gray_from_values, win)
-            new_values[i][j] = from_values[x][y]
+            same_pxl = find_same(Pixel(i,j), to_values, gray_from_values, win)
+            new_values[i][j] = from_values[same_pxl.x][same_pxl.y]
     return new_values
 
 def plot_results(new_values, org_image, gray_from_image):
@@ -81,20 +92,20 @@ def plot_results(new_values, org_image, gray_from_image):
     plt.show()
 
 
-def get_pixels_in_frame(image, x, y,  rec_size):
+def get_pixels_in_frame(image, pxl,  rec_size):
     """
     Returns a list of all the pixels in the frame of the rectangle that surrounds
     the pixel at (x, y) in the given image.
     """
-    x1, y1, x2, y2 = get_surrounding_rectangle(image, x, y, rec_size)
+    x1, y1, x2, y2 = get_surrounding_rectangle(image, pxl, rec_size)
     pixels = []
     for i in range(y1, y2+1):
         for j in range(x1, x2+1):
             if i == y1 or i == y2 or j == x1 or j == x2:
-                pixels.append([i,j])
+                pixels.append(Pixel(i,j))
     return pixels
 
-def get_surrounding_rectangle(image, x, y, rec_size):
+def get_surrounding_rectangle(image, pxl, rec_size):
     """
     Returns the rectangle that surrounds the pixel at (x, y) in the given image.
     The rectangle is represented as a tuple of (x1, y1, x2, y2), where (x1, y1) is
@@ -103,10 +114,10 @@ def get_surrounding_rectangle(image, x, y, rec_size):
     width = len(image[0])
     height = len(image)
     # Calculate the coordinates of the top-left and bottom-right corners of the rectangle
-    x1 = max(0, x - rec_size)
-    y1 = max(0, y - rec_size)
-    x2 = min(width - rec_size, x + rec_size)
-    y2 = min(height - rec_size, y + rec_size)
+    x1 = max(0, pxl.x - rec_size)
+    y1 = max(0, pxl.y - rec_size)
+    x2 = min(width - rec_size, pxl.x + rec_size)
+    y2 = min(height - rec_size, pxl.y + rec_size)
     return (x1, y1, x2, y2)
 
 
@@ -134,7 +145,7 @@ gray_from_values = np.asarray(gray_from_image,dtype='int64').copy()
 
 new_values = np.asarray(new_to).copy()
 new_values.fill(0)
-nv = restore_colors(to_values, gray_from_values, from_values, 25)
+nv = restore_colors(to_values, gray_from_values, from_values, 2)
 
 
 plot_results(nv, org_image, gray_from_image)
