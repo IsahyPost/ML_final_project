@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from matplotlib import pyplot as plt
 import math
 import os
+import time
 
 
 
@@ -38,7 +39,11 @@ def find_same(x_pix,y_pix, t_im,f_im, win):
     return same
 
 def similarity(x_pix,y_pix, i, j, t_im ,f_im):
-    return abs(t_im[x_pix][y_pix] - f_im[i][j])
+    tx = int(t_im[x_pix][y_pix])
+    fx = int(f_im[i][j])
+    #ret = abs(t_im[x_pix][y_pix] - f_im[i][j])
+    ret = abs(tx - fx)
+    return ret
 
 def distance(x_pix,y_pix, i, j):
     return math.sqrt((x_pix - i) ** 2 + (y_pix - j) ** 2)
@@ -53,6 +58,10 @@ def new_min(x_pix,y_pix, i, j, mn, t_im ,f_im):
     return mn
 
 def restore_colors(to_values, gray_from_values, from_values, win):
+    # print("to_values: type - {}, shape - {}".format(type(to_values), to_values.shape))
+    # print("gray_from_values: type - {}, shape - {}".format(type(gray_from_values), gray_from_values.shape))
+    # print("from_values: type - {}, shape - {}".format(type(from_values), from_values.shape), '\n')
+    # return
     new_values = np.asarray(new_to).copy()
     new_values.fill(0)
 
@@ -110,13 +119,15 @@ def get_surrounding_rectangle(image, x, y, rec_size):
     return (x1, y1, x2, y2)
 
 
-persons = ['cgboyc', 'cmkirk', 'djhugh','dmwest', 'gmwate','khughe','lejnno']
+#persons = ['cgboyc', 'cmkirk', 'djhugh','dmwest', 'gmwate','khughe','lejnno']
+persons = ['cgboyc', 'cmkirk']
 
-
-toName = 'C:/Users/holtz/OneDrive/Desktop/faces_sets/training_set/' + \
-        'cgboyc' + '.' + str(12) + '.jpg'
-fromName = 'C:/Users/holtz/OneDrive/Desktop/faces_sets/training_set/' + \
-            'cgboyc' + '.' + str(16) + '.jpg'
+# toName = 'C:/Users/holtz/OneDrive/Desktop/faces_sets/training_set/' + \
+#         'cgboyc' + '.' + str(12) + '.jpg'
+# fromName = 'C:/Users/holtz/OneDrive/Desktop/faces_sets/training_set/' + \
+#             'cgboyc' + '.' + str(16) + '.jpg'
+toName = 'cgboyc' + '.' + str(12) + '.jpg'
+fromName = 'cgboyc' + '.' + str(16) + '.jpg'
 to_image = Image.open(toName).convert('L')
 org_image = Image.open(toName)
 from_image = Image.open(fromName)
@@ -128,16 +139,18 @@ from_values = np.asarray(from_image,dtype='int64').copy()
 gray_from_values = np.asarray(gray_from_image,dtype='int64').copy()
 
 
-# new_values = np.asarray(new_to).copy()
-# new_values.fill(0)
-# nv = restore_colors(to_values, gray_from_values, from_values, 25)
+new_values = np.asarray(new_to).copy()
+new_values.fill(0)
+#nv = restore_colors(to_values, gray_from_values, from_values, 5)
 
 #plot_results(nv, org_image, gray_from_image)
 
 
 # in this stage we want to load the images
 # we change them to np.array to be ready for pca
-train_path = 'C:/Users/holtz/OneDrive/Desktop/Machine Learning/ProjectPostHoltzman/faces_sets/training_set/'
+start_time = time.time()
+#train_path = 'C:/Users/holtz/OneDrive/Desktop/Machine Learning/ProjectPostHoltzman/faces_sets/training_set/'
+train_path = r'C:\Users\lenovo\PycharmProjects\ML_final_project\faces_sets\training_set/'
 personsGreyAsMatrix = []
 names_train_set = []
 for name in persons:
@@ -150,7 +163,8 @@ for name in persons:
         names_train_set.append(name + '.' + str(i) + '.jpg')
 personsGreyAsMatrix = np.asarray(personsGreyAsMatrix)
 
-test_path = 'C:/Users/holtz/OneDrive/Desktop/Machine Learning/ProjectPostHoltzman/faces_sets/test_set/'
+#test_path = 'C:/Users/holtz/OneDrive/Desktop/Machine Learning/ProjectPostHoltzman/faces_sets/test_set/'
+test_path = r'C:\\Users\lenovo\PycharmProjects\ML_final_project\faces_sets\test_set/'
 test_set = []
 names_test_set = []
 for name in persons:
@@ -178,13 +192,13 @@ for name in persons:
     data_pca = pca.transform(data)
     similar = cosine_similarity(data_pca,X_train_pca)
     max_similarity_index = np.argmax(similar[0])
-    
+
     image_test = Image.open(imageName)
     res_image = Image.open(train_path + names_train_set[max_similarity_index])
-    
-   
-    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10, 5))
-    
+
+
+    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(7, 7))
+
     # Display the images on the subplots
     ax1[0].imshow(image, cmap='gray')
     ax1[0].axis('off')
@@ -195,36 +209,21 @@ for name in persons:
     ax1[0].set_title('original')
     ax1[1].set_title('most similar')
     # ax3.set_title('gray original')
-    
-    # Show the plot
-    plt.show()
+
 
     grey_res = res_image.convert('L')
     grey_res_val = np.asarray(grey_res)
     res_values = np.asarray(res_image)
 
-    x = restore_colors(image_array, grey_res_val, res_values, 5)
+    x = restore_colors(image_array, grey_res_val, res_values, 25)
     ax2[0].imshow(x)
     ax2[0].set_title('restore image')
     ax2[0].axis('off')
     ax2[1].axis('off')
-    
-    
-    
-    
-    
 
+    # Show the plot
+    #plt.show()
+    plots_path = r'C:\Users\lenovo\Downloads\plots/'
+    plt.savefig(plots_path + name)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+print("Time taken: {:.3f}s".format(time.time() - start_time))
