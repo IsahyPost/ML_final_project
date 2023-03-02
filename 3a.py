@@ -1,3 +1,8 @@
+'''
+names :
+    Oren Holthman , 209905207
+    Ishay Post , 205415607
+'''
 from PIL import Image
 import numpy as np
 from sklearn.decomposition import PCA
@@ -131,7 +136,7 @@ def restore_colors(to_values, gray_from_values, from_values, black_img, win = 25
             black_img[i][j] = from_values[x][y]
     return black_img
 
-def plot_results(org_image, restored_img, target_im, target_im_type = '' ,name = ''):
+def plot_results(org_image, restored_img, target_im, target_im_type = ''):
     """
         Plot the original, restored and target images side by side.
 
@@ -163,8 +168,8 @@ def plot_results(org_image, restored_img, target_im, target_im_type = '' ,name =
         ax.axis('off')
 
     #Show the plot
-    #plt.show()
-    plt.savefig(r'C:\Users\lenovo\Downloads\plots\{}.png'.format(name))
+    plt.show()
+
 
 def get_pixels_in_frame(image, x, y, rec_size):
     """
@@ -221,10 +226,7 @@ def create_average_image(set_dir, name):
     return np.mean(same_people_img, axis=0)
 
 
-
-# = ['cgboyc', 'cmkirk', 'djhugh', 'dmwest', 'gmwate', 'khughe', 'lejnno']
-persons = ['cgboyc', 'cmkirk']
-# persons = ['cgboyc']
+persons = ['cgboyc', 'cmkirk', 'djhugh', 'dmwest', 'gmwate', 'khughe', 'lejnno']
 
 # question 3b
 #load the images and change them to np.array to be ready for pca
@@ -308,7 +310,7 @@ for name in persons:
 
     # Creating the restored image and displaying the results
     restored_img = restore_colors(image_array, grey_most_sim_val, most_sim_vals, black_img.copy())
-    plot_results(image, restored_img, most_similar_im, target_im_type='most similar' , name='sim '+name)
+    plot_results(image, restored_img, most_similar_im, target_im_type='most similar')
 
 
 #question 3f
@@ -325,4 +327,4 @@ for name in persons:
     # Creating the restored image and displaying the results
     restored_img = restore_colors(np.asarray(image), grey_avg_image, avg_image, black_img.copy())
     restored_img = restored_img / 255.0
-    plot_results(image, restored_img, Image.fromarray(avg_image.astype('uint8')),target_im_type='average image', name ='avg '+ name)
+    plot_results(image, restored_img, Image.fromarray(avg_image.astype('uint8')),target_im_type='average image')
