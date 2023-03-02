@@ -26,16 +26,10 @@ def find_same(x_pix, y_pix, t_im, f_im, win):
 
 
 def similarity(x_pix, y_pix, i, j, t_im, f_im):
-    # tx = int(t_im[x_pix][y_pix])
-    # fx = int(f_im[i][j])
-    # ret = abs(tx - fx)
-    # return ret
     return abs(int(t_im[x_pix][y_pix]) - int(f_im[i][j]))
-
 
 def distance(x_pix, y_pix, i, j):
     return math.sqrt((x_pix - i) ** 2 + (y_pix - j) ** 2)
-
 
 def new_min(x_pix, y_pix, i, j, mn, t_im, f_im):
     dis = (distance(x_pix, y_pix, i, j))
@@ -46,7 +40,6 @@ def new_min(x_pix, y_pix, i, j, mn, t_im, f_im):
         return new
     return mn
 
-
 def restore_colors(to_values, gray_from_values, from_values, win, black_img):
     for i in range(len(to_values)):
         for j in range(len(to_values[0])):
@@ -54,8 +47,7 @@ def restore_colors(to_values, gray_from_values, from_values, win, black_img):
             black_img[i][j] = from_values[x][y]
     return black_img
 
-
-def plot_results(org_image, restored_img, most_similar):
+def plot_results(org_image, restored_img, most_similar, name = ''):
     fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(7, 7))
 
     # Display the images on the subplots
@@ -70,15 +62,12 @@ def plot_results(org_image, restored_img, most_similar):
     ax2[0].set_title('restore image')
     ax2[1].set_title('most similar')
 
-    # ax1[0].axis('off')
-    # ax2[0].axis('off')
-    # ax1[1].axis('off')
-    # ax2[1].axis('off')
     for ax in [*ax1, *ax2]:
         ax.axis('off')
 
     # Show the plot
-    plt.show()
+    # plt.show()
+    plt.savefig(r'C:\Users\lenovo\Downloads\plots\{}.png'.format(name))
 
 def get_pixels_in_frame(image, x, y, rec_size):
     """
@@ -92,7 +81,6 @@ def get_pixels_in_frame(image, x, y, rec_size):
             if i == y1 or i == y2 or j == x1 or j == x2:
                 pixels.append([i, j])
     return pixels
-
 
 def get_surrounding_rectangle(image, x, y, rec_size):
     """
@@ -179,7 +167,7 @@ n_components = len(personsGreyAsMatrix)
 pca = PCA(n_components=n_components, svd_solver="randomized", whiten=True)
 X_train_pca = pca.fit_transform(personsGreyAsMatrix)
 X_train_1d = X_train_pca.reshape((X_train_pca.shape[0], -1))
-'''
+
 for name in persons:
     # construct the relative path to the image
     image_path = os.path.join(test_set_dir, name + '.' + str(20) + '.jpg')
@@ -203,9 +191,9 @@ for name in persons:
     res_values = np.asarray(res_image)
     black_img = np.asarray(res_image).copy()
     black_img.fill(0)
-    restored_img = restore_colors(image_array, grey_res_val, res_values, 2, black_img)
-    plot_results(grey_img, restored_img, res_image)
-  '''
+    restored_img = restore_colors(image_array, grey_res_val, res_values, 25, black_img)
+    plot_results(grey_img, restored_img, res_image, name='sim '+name)
+
 
 for name in persons:
     # construct the relative path to the image
@@ -220,9 +208,10 @@ for name in persons:
     grey_avg_image = np.asarray(Image.fromarray(avg_image.astype('uint8')).convert('L'))
     black_img = np.asarray(avg_image).copy()
     black_img.fill(0)
-    restored_img = restore_colors(np.asarray(grey_img), grey_avg_image, avg_image.astype('uint8'), 2, black_img)
+    restored_img = restore_colors(np.asarray(grey_img), grey_avg_image, avg_image, 25, black_img)
+    restored_img = restored_img / 255.0
     # a = Image.fromarray(avg_image.astype('uint8'))
-    plot_results(grey_img, restored_img, Image.fromarray(avg_image.astype('uint8')))
+    plot_results(grey_img, restored_img, Image.fromarray(avg_image.astype('uint8')), name ='avg '+ name)
 
 
 
