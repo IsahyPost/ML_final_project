@@ -9,11 +9,32 @@ from matplotlib import cm
 def f(x, a, b):
   return a * x + b
 
+
 def loss(x, y, a, b):
   return np.sum((y - f(x, a, b))**2)
 
 
 def gradient_decent(lr, num_iter, x, y):
+    '''
+    Performs gradient descent to optimize the parameters of a linear model for
+    a given data set, and returns the optimized parameters, losses, and the lists
+    of the parameters at each iteration.
+    
+    Parameters
+    ----------
+    lr : Learning rate used in gradient descent
+    num_iter : Number of iterations to perform during gradient descent
+    x : Input data
+    y : Target data
+
+    Returns
+    -------
+    a : The optimized value for parameter a
+    b : The optimized value for parameter b
+    losses : A list of the loss values for each iteration of gradient descent
+    a_list : A list of the values of parameter a at each iteration of gradient descent
+    b_list : A list of the values of parameter b at each iteration of gradient descent
+    '''
     
     # Initialize the model parameters
     a = 1
@@ -45,11 +66,21 @@ def gradient_decent(lr, num_iter, x, y):
       # Calculate the loss and appends it to the losses list
       losses.append(loss(x, y, a, b))
       
-    
     return a, b, losses, a_list, b_list
   
  
 def plot_2D_error(losses):
+    '''
+    Plots the error values as a function of the iteration number
+    
+    Parameters
+    ----------
+    losses : The error values at each iteration.
+    
+    Returns
+    -------
+    None.
+    '''
     fig = plt.figure()
     fig.suptitle("Error vs Iteration", fontsize=14)
     plt.plot(losses, color = "blue")
@@ -59,6 +90,20 @@ def plot_2D_error(losses):
     
     
 def plot_2D_linear(a, b, x, y):
+    '''
+    Plots the input data along with the linear model specified by the slope a and y-intercept b.
+    
+    Parameters
+    ----------
+    a : The slope of the linear model
+    b : The y-intercept of the linear model
+    x : The input values
+    y : The target values
+    
+    Returns
+    -------
+    None.
+    '''
     # Plot the data and model
     plt.scatter(x, y, color="red")
     plt.plot(x, f(x, a, b), color="blue")
@@ -68,6 +113,21 @@ def plot_2D_linear(a, b, x, y):
  
     
 def plot_3D_error_vs_iterations(a_list, b_list, losses):
+    '''
+    Plots a 3D surface representing the loss surface of a linear regression model
+    with respect to its parameters, along with the parameters found during each
+    iteration of the gradient descent algorithm.
+    
+    Parameters
+    ----------
+    a_list : List to store the parameter 'a' at each iteration during the gradient descent algorithm
+    b_list : List to store the parameter 'b' at each iteration during the gradient descent algorithm
+    losses : List to store the loss value at each iteration during the gradient descent algorithm
+
+    Returns
+    -------
+    None.
+    '''
     # Convert the lists to numpy arrays
     a_array = np.array(a_list)
     b_array = np.array(b_list)
@@ -94,7 +154,6 @@ def plot_3D_error_vs_iterations(a_list, b_list, losses):
     plt.show()
     
     
-    
 # Define the data
 x = np.array([-3, -2, 0, 1, 3, 4])
 y = np.array([-1.5, 2, 0.7, 5, 3.5, 7.5])
@@ -112,7 +171,4 @@ print(*[losses[i] for i in range(len(losses)) if i % 10 == 0], sep="\n")
 plot_2D_error(losses)
 plot_2D_linear(a, b, x, y)
 plot_3D_error_vs_iterations(a_list, b_list, losses)
-
-
-
 
